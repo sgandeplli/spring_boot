@@ -6,7 +6,7 @@ pipeline {
         DOCKER_TAG = "${BUILD_NUMBER}"  // Use the Jenkins build number as the Docker tag
         MAVEN_HOME = '/opt/apache-maven-3.9.9' // Path to your Maven installation
         PATH = "${MAVEN_HOME}/bin:${env.PATH}" // Add Maven to the PATH
-        DOCKER_HUB_USERNAME = 'sgandepalli@softility.com'  // Set your Docker Hub username
+        DOCKER_HUB_USERNAME = 'sekhar1913'  // Set your Docker Hub username
         DOCKER_HUB_PASSWORD = credentials('docker-pass') // Docker Hub password from Jenkins credentials store
     }
 
