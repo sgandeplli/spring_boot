@@ -11,7 +11,7 @@ pipeline {
         GOOGLE_CREDENTIALS = credentials('gcp-sa')  // GCP Service Account Key for Terraform
         DEPLOY_YAML = 'deploy.yml'  // Path to the Kubernetes deployment file
         // TF_STATE_BUCKET = 'your-terraform-state-bucket'  // Set your GCP bucket for Terraform state storage
-        CLUSTER_NAME = 'cluster-11'  // GCP Cluster name (should be parameterized if needed)
+        CLUSTER_NAME = 'my-cluster11'  // GCP Cluster name (should be parameterized if needed)
         ZONE = 'us-west3-c'  // GCP Zone (should be parameterized if needed)
         PROJECT_ID = 'ferrous-upgrade-446608-k0'  // GCP project ID (should be parameterized if needed)
     }
