@@ -7,7 +7,7 @@ variable "project_id" {
 variable "region" {
   description = "The region where the resources will be created"
   type        = string
-  default     = "us-west3"  // Change to a region with sufficient quota
+  default     = "us-west3-c"  // Change to a region with sufficient quota
 }
 
 variable "cluster_name" {
@@ -21,11 +21,7 @@ variable "node_count" {
   type        = number
   default     = 1  
 }
-variable "zone" {
-  description = "The zone where the resources will be created"
-  type        = string
-  default     = "us-west3-c"  // Change to a region with sufficient quota
-}
+
 variable "node_machine_type" {
   description = "The type of machine to use for nodes in the Kubernetes cluster"
   type        = string
