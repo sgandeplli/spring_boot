@@ -8,7 +8,7 @@ pipeline {
         PATH = "${MAVEN_HOME}/bin:${env.PATH}" // Add Maven to the PATH
         DOCKER_HUB_USERNAME = 'sekhar1913'  // Set your Docker Hub username
         DOCKER_HUB_PASSWORD = credentials('docker-pass') // Docker Hub password from Jenkins credentials store
-        GOOGLE_CREDENTIALS = credentials('gcp-sa')  // GCP Service Account Key for Terraform
+        GOOGLE_CREDENTIALS = credentials('gcp-sa-1')  // GCP Service Account Key for Terraform
         DEPLOY_YAML = 'deploy.yml'  // Path to the Kubernetes deployment file
         // TF_STATE_BUCKET = 'your-terraform-state-bucket'  // Set your GCP bucket for Terraform state storage
         CLUSTER_NAME = 'my-cluster11'  // GCP Cluster name (should be parameterized if needed)
