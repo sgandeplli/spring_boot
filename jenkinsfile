@@ -16,19 +16,13 @@ pipeline {
         PROJECT_ID = 'ferrous-upgrade-446608-k0'  // GCP project ID (should be parameterized if needed)
     }
 
+
+
+
     stages {
         stage('Checkout from GitHub') {
             steps {
-                script {
-                    if (!fileExists('first-demo-project')) {
-                        sh 'git clone https://github.com/sekhar-dev/first-demo-project.git'
-                    } else {
-                        dir('first-demo-project') {
-                            sh 'git reset --hard'
-                            sh 'git pull origin master'
-                        }
-                    }
-                }
+                 git url: '', branch: 'master'
             }
         }
 
