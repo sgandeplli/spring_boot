@@ -22,7 +22,7 @@ pipeline {
     stages {
         stage('Checkout from GitHub') {
             steps {
-                 git url: '', branch: 'master'
+                 git url: 'https://github.com/sgandeplli/spring_boot.git', branch: 'master'
             }
         }
 
