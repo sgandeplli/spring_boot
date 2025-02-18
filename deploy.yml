@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: my-app
-          image: "sekhar1913/my-app:4"  # Updated to use sekhar1913/my-app:4
+          image: "sekhar1913/my-app:18"  # Updated to use sekhar1913/my-app
           ports:
             - containerPort: 8080
 ---
