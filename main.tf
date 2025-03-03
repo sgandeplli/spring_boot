@@ -28,7 +28,7 @@ data "google_client_config" "default" {}
 provider "kubernetes" {
   host                   = data.google_container_cluster.primary.endpoint
   cluster_ca_certificate = base64decode(data.google_container_cluster.primary.master_auth[0].cluster_ca_certificate)
-  token                  = data.google_client_config.default.access_token
+  token                  = data.google_container_cluster.primary.master_auth[0].access_token  # Correct token retrieval
 }
 
 # Configure the Helm provider
@@ -36,6 +36,6 @@ provider "helm" {
   kubernetes {
     host                   = data.google_container_cluster.primary.endpoint
     cluster_ca_certificate = base64decode(data.google_container_cluster.primary.master_auth[0].cluster_ca_certificate)
-    token                  = data.google_client_config.default.access_token
+    token                  = data.google_container_cluster.primary.master_auth[0].access_token  # Correct token retrieval
   }
 }
