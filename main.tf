@@ -14,3 +14,15 @@ resource "google_container_cluster" "primary" {
 
   remove_default_node_pool = false
 }
+# Retrieve the GKE cluster info
+data "google_container_cluster" "primary" {
+  name     = google_container_cluster.primary.name
+  location = google_container_cluster.primary.location
+}
+
+# Configure the Kubernetes provider
+provider "kubernetes" {
+  host                   = data.google_container_cluster.primary.endpoint
+  cluster_ca_certificate = base64decode(data.google_container_cluster.primary.master_auth[0].cluster_ca_certificate)
+  token                  = data.google_container_cluster.primary.master_auth[0].access_token
+}
