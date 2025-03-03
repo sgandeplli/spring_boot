@@ -7,7 +7,7 @@ provider "google" {
 # Create the Google Kubernetes Engine (GKE) cluster
 resource "google_container_cluster" "primary" {
   name               = var.cluster_name
-  location           = var.region  # Use the region you specified
+  location           = var.region  # Ensure this is a region (e.g., "us-west3"), not a zone like "us-west3-c"
   deletion_protection = false
   initial_node_count = var.node_count
 
@@ -22,7 +22,7 @@ resource "google_container_cluster" "primary" {
 # Retrieve the GKE cluster info
 data "google_container_cluster" "primary" {
   name     = google_container_cluster.primary.name
-  location = google_container_cluster.primary.location
+  location = var.region  # Ensure consistency with cluster definition
 }
 
 # Retrieve the client config for Google Cloud (used for access token)
@@ -37,30 +37,30 @@ output "gke_cluster_ca_certificate" {
   value = base64decode(data.google_container_cluster.primary.master_auth[0].cluster_ca_certificate)
 }
 
-# Configure the Kubernetes provider (using the existing google provider)
+# Kubernetes provider configuration
 provider "kubernetes" {
   host                   = data.google_container_cluster.primary.endpoint
   cluster_ca_certificate = base64decode(data.google_container_cluster.primary.master_auth[0].cluster_ca_certificate)
-  token                  = data.google_client_config.default.access_token  # Correct token retrieval
+  token                  = data.google_client_config.default.access_token
 }
 
-# Configure the Helm provider (explicitly reference the kubernetes provider)
+# Helm provider configuration
 provider "helm" {
   kubernetes {
     host                   = data.google_container_cluster.primary.endpoint
     cluster_ca_certificate = base64decode(data.google_container_cluster.primary.master_auth[0].cluster_ca_certificate)
-    token                  = data.google_client_config.default.access_token  # Correct token retrieval
+    token                  = data.google_client_config.default.access_token
   }
 }
 
 # Delegate Module Configuration
 module "delegate" {
-  source = "harness/harness-delegate/kubernetes"
+  source  = "harness/harness-delegate/kubernetes"
   version = "0.1.8"
 
-  account_id      = "ucHySz2jQKKWQweZdXyCog"
-  delegate_token  = "NTRhYTY0Mjg3NThkNjBiNjMzNzhjOGQyNjEwOTQyZjY="
-  delegate_name   = "terraform-delegate"
+  account_id       = "ucHySz2jQKKWQweZdXyCog"
+  delegate_token   = "NTRhYTY0Mjg3NThkNjBiNjMzNzhjOGQyNjEwOTQyZjY="
+  delegate_name    = "terraform-delegate"
   deploy_mode     = "KUBERNETES"
   namespace       = "harness-delegate-ng"
   manager_endpoint = "https://app.harness.io"
@@ -79,7 +79,7 @@ variable "project_id" {
 variable "region" {
   description = "The region where the resources will be created"
   type        = string
-  default     = "us-west3-c"  # Replace with your desired region
+  default     = "us-west3"  # Ensure this is a region, not a zone
 }
 
 variable "cluster_name" {
