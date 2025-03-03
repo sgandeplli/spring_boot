@@ -1,7 +1,7 @@
 variable "project_id" {
   description = "The GCP project ID"
   type        = string
-  default     = "ferrous-upgrade-446608-k0"  
+  default     = "siva-sai-447213"  
 }
 
 variable "region" {
