@@ -1,26 +1,23 @@
-# Provider for Google Cloud
+# Google Provider Setup
 provider "google" {
   project = var.project_id
   region  = var.region
 }
 
-# Retrieve the GKE cluster info
+# Data Resource to Get Cluster Information
 data "google_container_cluster" "primary" {
   name     = google_container_cluster.primary.name
   location = google_container_cluster.primary.location
 }
 
-# Retrieve the client config for Google Cloud (used for access token)
-data "google_client_config" "default" {}
-
-# Kubernetes Provider (using the already declared google provider)
+# Kubernetes Provider Setup
 provider "kubernetes" {
   host                   = data.google_container_cluster.primary.endpoint
   cluster_ca_certificate = base64decode(data.google_container_cluster.primary.master_auth[0].cluster_ca_certificate)
   token                  = data.google_client_config.default.access_token
 }
 
-# Helm Provider (using the already declared google provider)
+# Helm Provider Setup (Using Kubernetes credentials)
 provider "helm" {
   kubernetes {
     host                   = data.google_container_cluster.primary.endpoint
@@ -29,24 +26,15 @@ provider "helm" {
   }
 }
 
-# Create the GKE Cluster
+# GKE Cluster Resource (Ensure the cluster is correctly set up)
 resource "google_container_cluster" "primary" {
   name     = var.cluster_name
-  location = var.region  # Use the region you specified
+  location = var.region
 
-  deletion_protection = false
-
-  initial_node_count = var.node_count
-
-  node_config {
-    machine_type = var.node_machine_type
-    disk_size_gb = 30
-  }
-
-  remove_default_node_pool = false
+  # Other cluster settings...
 }
 
-# Delegate Module Configuration
+# Helm release for delegate
 module "delegate" {
   source = "harness/harness-delegate/kubernetes"
   version = "0.1.8"
@@ -60,35 +48,4 @@ module "delegate" {
   delegate_image = "harness/delegate:25.02.85300"
   replicas       = 1
   upgrader_enabled = true
-}
-
-# Define the input variables for the project
-variable "project_id" {
-  description = "The GCP project ID"
-  type        = string
-  default     = "decoded-plane-452604-r7"
-}
-
-variable "region" {
-  description = "The region where the resources will be created"
-  type        = string
-  default     = "us-west3-c"  # Use the region specified in your input
-}
-
-variable "cluster_name" {
-  description = "The name of the Kubernetes cluster"
-  type        = string
-  default     = "my-cluster11"  # Default name of the cluster
-}
-
-variable "node_count" {
-  description = "The number of nodes in the Kubernetes cluster"
-  type        = number
-  default     = 1  # Number of nodes in the cluster
-}
-
-variable "node_machine_type" {
-  description = "The type of machine to use for nodes in the Kubernetes cluster"
-  type        = string
-  default     = "e2-medium"  # Machine type for the nodes
 }
