@@ -1,6 +1,13 @@
+# Google Cloud Provider Configuration
+provider "google" {
+  project = var.project_id
+  region  = var.region
+}
+
+# Create the Google Kubernetes Engine (GKE) cluster
 resource "google_container_cluster" "primary" {
   name     = var.cluster_name
-  location = var.region  # This is still the region, like 'us-central1'
+  location = var.region  # Change this to your desired region (e.g., us-west1-a)
 
   deletion_protection = false
 
@@ -9,11 +16,11 @@ resource "google_container_cluster" "primary" {
   node_config {
     machine_type = var.node_machine_type
     disk_size_gb = 30
-    # Adding zone here for node pool creation
   }
 
   remove_default_node_pool = false
 }
+
 # Retrieve the GKE cluster info
 data "google_container_cluster" "primary" {
   name     = google_container_cluster.primary.name
@@ -23,18 +30,72 @@ data "google_container_cluster" "primary" {
 # Retrieve the client config for Google Cloud (used for access token)
 data "google_client_config" "default" {}
 
-# Configure the Kubernetes provider
+# Configure the Kubernetes provider (using alias)
 provider "kubernetes" {
+  alias                  = "gke"
   host                   = data.google_container_cluster.primary.endpoint
   cluster_ca_certificate = base64decode(data.google_container_cluster.primary.master_auth[0].cluster_ca_certificate)
   token                  = data.google_client_config.default.access_token  # Correct token retrieval
 }
 
-# Configure the Helm provider
+# Configure the Helm provider (using alias)
 provider "helm" {
+  alias = "gke"
   kubernetes {
     host                   = data.google_container_cluster.primary.endpoint
     cluster_ca_certificate = base64decode(data.google_container_cluster.primary.master_auth[0].cluster_ca_certificate)
     token                  = data.google_client_config.default.access_token  # Correct token retrieval
   }
+}
+
+# Delegate Module Configuration
+module "delegate" {
+  source = "harness/harness-delegate/kubernetes"
+  version = "0.1.8"
+
+  account_id     = "ucHySz2jQKKWQweZdXyCog"
+  delegate_token = "NTRhYTY0Mjg3NThkNjBiNjMzNzhjOGQyNjEwOTQyZjY="
+  delegate_name  = "terraform-delegate"
+  deploy_mode    = "KUBERNETES"
+  namespace      = "harness-delegate-ng"
+  manager_endpoint = "https://app.harness.io"
+  delegate_image = "harness/delegate:25.02.85300"
+  replicas       = 1
+  upgrader_enabled = true
+
+  providers = {
+    kubernetes = kubernetes.gke
+    helm       = helm.gke
+  }
+}
+
+# Define the input variables for the project
+variable "project_id" {
+  description = "The GCP project ID"
+  type        = string
+  default     = "your-project-id"
+}
+
+variable "region" {
+  description = "The region where the resources will be created"
+  type        = string
+  default     = "us-west1"
+}
+
+variable "cluster_name" {
+  description = "The name of the Kubernetes cluster"
+  type        = string
+  default     = "my-cluster"
+}
+
+variable "node_count" {
+  description = "The number of nodes in the Kubernetes cluster"
+  type        = number
+  default     = 1
+}
+
+variable "node_machine_type" {
+  description = "The type of machine to use for nodes in the Kubernetes cluster"
+  type        = string
+  default     = "e2-medium"
 }
