@@ -1,35 +1,7 @@
-# provider.tf
+# Provider for Google Cloud
 provider "google" {
   project = var.project_id
   region  = var.region
-}
-
-# Configure the Kubernetes provider
-provider "kubernetes" {
-  host                   = data.google_container_cluster.primary.endpoint
-  cluster_ca_certificate = base64decode(data.google_container_cluster.primary.master_auth[0].cluster_ca_certificate)
-  token                  = data.google_container_cluster.primary.master_auth[0].access_token
-}
-
-# Configure the Helm provider
-provider "helm" {
-  kubernetes {
-    host                   = data.google_container_cluster.primary.endpoint
-    cluster_ca_certificate = base64decode(data.google_container_cluster.primary.master_auth[0].cluster_ca_certificate)
-    token                  = data.google_container_cluster.primary.master_auth[0].access_token
-  }
-}
-
-# main.tf
-resource "google_container_cluster" "primary" {
-  name               = var.cluster_name
-  location           = var.region
-  initial_node_count = var.node_count
-  node_config {
-    machine_type = var.node_machine_type
-    disk_size_gb = 30
-  }
-  remove_default_node_pool = false
 }
 
 # Retrieve the GKE cluster info
@@ -41,7 +13,40 @@ data "google_container_cluster" "primary" {
 # Retrieve the client config for Google Cloud (used for access token)
 data "google_client_config" "default" {}
 
-# Declare module for deploying the Harness Delegate
+# Kubernetes Provider (using the already declared google provider)
+provider "kubernetes" {
+  host                   = data.google_container_cluster.primary.endpoint
+  cluster_ca_certificate = base64decode(data.google_container_cluster.primary.master_auth[0].cluster_ca_certificate)
+  token                  = data.google_client_config.default.access_token
+}
+
+# Helm Provider (using the already declared google provider)
+provider "helm" {
+  kubernetes {
+    host                   = data.google_container_cluster.primary.endpoint
+    cluster_ca_certificate = base64decode(data.google_container_cluster.primary.master_auth[0].cluster_ca_certificate)
+    token                  = data.google_client_config.default.access_token
+  }
+}
+
+# Create the GKE Cluster
+resource "google_container_cluster" "primary" {
+  name     = var.cluster_name
+  location = var.region  # Use the region you specified
+
+  deletion_protection = false
+
+  initial_node_count = var.node_count
+
+  node_config {
+    machine_type = var.node_machine_type
+    disk_size_gb = 30
+  }
+
+  remove_default_node_pool = false
+}
+
+# Delegate Module Configuration
 module "delegate" {
   source = "harness/harness-delegate/kubernetes"
   version = "0.1.8"
@@ -57,7 +62,7 @@ module "delegate" {
   upgrader_enabled = true
 }
 
-# variable.tf
+# Define the input variables for the project
 variable "project_id" {
   description = "The GCP project ID"
   type        = string
@@ -67,53 +72,23 @@ variable "project_id" {
 variable "region" {
   description = "The region where the resources will be created"
   type        = string
-  default     = "us-west3-c"  // Change to a region with sufficient quota
+  default     = "us-west3-c"  # Use the region specified in your input
 }
 
 variable "cluster_name" {
   description = "The name of the Kubernetes cluster"
   type        = string
-  default     = "my-cluster11" 
+  default     = "my-cluster11"  # Default name of the cluster
 }
 
 variable "node_count" {
   description = "The number of nodes in the Kubernetes cluster"
   type        = number
-  default     = 1
+  default     = 1  # Number of nodes in the cluster
 }
 
 variable "node_machine_type" {
   description = "The type of machine to use for nodes in the Kubernetes cluster"
   type        = string
-  default     = "e2-medium"
+  default     = "e2-medium"  # Machine type for the nodes
 }
-
-# provider.tf
-provider "google" {
-  project     = var.project_id
-  region      = var.region
-}
-
-# data sources and Kubernetes configuration
-
-data "google_container_cluster" "primary" {
-  name     = google_container_cluster.primary.name
-  location = google_container_cluster.primary.location
-}
-
-data "google_client_config" "default" {}
-
-provider "kubernetes" {
-  host                   = data.google_container_cluster.primary.endpoint
-  cluster_ca_certificate = base64decode(data.google_container_cluster.primary.master_auth[0].cluster_ca_certificate)
-  token                  = data.google_client_config.default.access_token
-}
-
-provider "helm" {
-  kubernetes {
-    host                   = data.google_container_cluster.primary.endpoint
-    cluster_ca_certificate = base64decode(data.google_container_cluster.primary.master_auth[0].cluster_ca_certificate)
-    token                  = data.google_client_config.default.access_token
-  }
-}
-
