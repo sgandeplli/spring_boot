@@ -37,7 +37,7 @@ provider "kubernetes" {
   token                  = data.google_client_config.default.access_token  # Correct token retrieval
 }
 
-# Configure the Helm provider (using the same google provider for consistency)
+# Configure the Helm provider (explicitly reference the kubernetes provider)
 provider "helm" {
   kubernetes {
     host                   = data.google_container_cluster.primary.endpoint
