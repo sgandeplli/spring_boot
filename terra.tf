@@ -30,6 +30,15 @@ data "google_container_cluster" "primary" {
 # Retrieve the client config for Google Cloud (used for access token)
 data "google_client_config" "default" {}
 
+# Output the GKE cluster endpoint and CA certificate for debugging
+output "gke_cluster_endpoint" {
+  value = data.google_container_cluster.primary.endpoint
+}
+
+output "gke_cluster_ca_certificate" {
+  value = base64decode(data.google_container_cluster.primary.master_auth[0].cluster_ca_certificate)
+}
+
 # Configure the Kubernetes provider (using the existing google provider)
 provider "kubernetes" {
   host                   = data.google_container_cluster.primary.endpoint
