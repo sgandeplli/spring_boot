@@ -23,13 +23,13 @@ provider "helm" {
   }
 }
 
-# Deploy Harness Delegate in Kubernetes
+
 module "delegate" {
   source = "harness/harness-delegate/kubernetes"
   version = "0.1.8"
 
   account_id = "ucHySz2jQKKWQweZdXyCog"
-  delegate_token = "your-secret-delegate-token" # Use Terraform variables for security
+  delegate_token = "NTRhYTY0Mjg3NThkNjBiNjMzNzhjOGQyNjEwOTQyZjY="
   delegate_name = "terraform-delegate"
   deploy_mode = "KUBERNETES"
   namespace = "harness-delegate-ng"
