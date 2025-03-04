@@ -3,7 +3,7 @@ data "google_client_config" "default" {}
 
 data "google_container_cluster" "gke_cluster" {
   name     = var.cluster_name
-  location = "us-central1" # Change as per your cluster
+  location = var.region # Change as per your cluster
 }
 
 # Kubernetes Provider using GKE authentication
