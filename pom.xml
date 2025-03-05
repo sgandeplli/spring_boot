@@ -8,28 +8,34 @@
     <version>0.0.1-SNAPSHOT</version>
     <packaging>jar</packaging>
 
+    <name>First Demo Project</name>
+    <description>Spring Boot Maven Project</description>
+
     <properties>
-	     <java.version>17</java.version> 
-        <spring-boot.version>2.7.12</spring-boot.version> <!-- Replace with the version you're using -->
+        <java.version>17</java.version>  <!-- Setting Java 17 -->
+        <spring-boot.version>2.7.12</spring-boot.version>  <!-- Updated Spring Boot -->
     </properties>
 
     <dependencies>
+        <!-- Spring Boot Starter Web -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
             <version>${spring-boot.version}</version>
         </dependency>
-        <!-- Other dependencies here -->
-	<dependency>
-    <groupId>junit</groupId>
-    <artifactId>junit</artifactId>
-    <version>4.13.2</version> <!-- Or the version you're using -->
-    <scope>test</scope>
-</dependency>
+
+        <!-- JUnit for Testing -->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.13.2</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
         <plugins>
+            <!-- Spring Boot Plugin -->
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
@@ -41,7 +47,17 @@
                     </execution>
                 </executions>
             </plugin>
+
+            <!-- Maven Compiler Plugin (Setting Java 17) -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.8.1</version>
+                <configuration>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 </project>
-
